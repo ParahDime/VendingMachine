@@ -1,0 +1,7 @@
+﻿Chocolate 0.85
+Cookie 1.30
+Crisps 1.00
+Peanuts 1.10
+Water 0.50
+Lemonade 0.80
+Soda 0.90

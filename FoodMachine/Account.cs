@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace FoodMachine
+{
+    class Account
+    {
+        public string username;
+        public string password;
+        public string AccessLevel;
+        public float balance;
+    }
+}
