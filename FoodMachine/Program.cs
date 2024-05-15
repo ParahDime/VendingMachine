@@ -28,6 +28,7 @@ namespace FoodMachine
 
             int pin = 1234;
             int attemptPin = 0000;
+            int accessLevel = 0;
 
             double balance = 0.00;
             double tempBal = 0.00;
@@ -359,14 +360,94 @@ namespace FoodMachine
                         while (menuSelection == 3) //Used for changing values of the system
                         {
                             Console.Clear();
-                            Console.WriteLine("[4] : Access System Values");
-                            Console.WriteLine("This requires you to login. Please enter your username, then password.");
+                            Console.WriteLine("[4] : Access System Values\n");
+                           
+                            if(accessLevel > 1) //if admin and above
+                            {
+                                Console.WriteLine("Select mode");
+                                // add, edit, remove
+                                Console.WriteLine("[1] : Add items");
+                                Console.WriteLine("[2] : Edit items");
+                                Console.WriteLine("[3] : Remove items");
+                                Console.WriteLine("[0] : Exit");
+
+                                
+                            }
+                            else //if regular user
+                            {
+                                Console.WriteLine("ERROR! \nYou do not have the correct permissions.");
+                                Console.WriteLine("\n\n Press any key to return to main menu.");
+                                Console.ReadKey();
+                                break;
+                            }
+
+                            menuSelection = 5;
                         }
                         while (menuSelection == 4) //Used for changing the values/adding items
                         {
                             Console.Clear();
-                            Console.WriteLine("[5] : Access System Items");
-                            Console.WriteLine("This requires login. Please use a staff username and password");
+                            Console.WriteLine("[5] : Access System Items\n");
+                            Console.WriteLine("[1] : Edit PIN");
+                            Console.WriteLine("[2] : Add users\n");
+                            Console.WriteLine("[0] : Exit");
+
+                            int adminMenu = 0;
+                            //exit
+                            do
+                            {
+                                break;
+                            } while (adminMenu == 0);
+
+                            do //edit PIN
+                            {
+                                //output PIN
+
+                                //ask if user wants to change
+
+                                //if yes, user inputs 4 digit PIN
+                                //check if PIN in use
+
+                                //if yes, loop, error
+                                //if no, ask verif
+                                //if verif, accept, break
+                                //if no, do not accept, break
+
+                                //if no, break
+                                break;
+                            } while (adminMenu == 1);
+                            //submenu 2
+                            do
+                            {
+                                //if have validation
+                                if (accessLevel > 1)
+                                {
+                                    Console.WriteLine("This requires login. Please use a staff username and password");
+                                    //give ability for user to add
+                                    //provide name
+                                    //access Level must be 1 less than them
+                                    //balance is auto 0.00
+
+                                    //provide output, check to confirm
+
+                                    //if yes push and update data
+                                    //if no clear vars, press any key to return
+
+                                    break;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("ERROR! \nYou do not have the correct permissions.");
+                                    Console.WriteLine("\n\n Press any key to return to main menu.");
+                                    Console.ReadKey();
+                                    break;
+                                }
+
+                                
+                                //if not
+                            } while (adminMenu == 2);
+                            
+                            Console.ReadKey();
+                            menuSelection = 5;
                         }
                         while (menuSelection == 0) //used for exiting the program
                         {
@@ -404,12 +485,6 @@ namespace FoodMachine
 
 
                     } while (programRun == true);
-                }
-                while (menuSelection == 2) //user adds their own PIN
-                {
-                    Console.Clear();
-
-                    return;
                 }
                 if(menuSelection == 0) //if the user chooses to exit the program
                 {
