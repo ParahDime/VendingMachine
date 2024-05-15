@@ -37,7 +37,7 @@ namespace FoodMachine
             List<string> userName = new List<string>();
             List<string> passWord = new List<string>();
 
-            const int maxBasket = 0;
+            const int maxBasket = 5;
             const int items = 8;
             string[] itemName = new string[items] { "Chocolate", "Cookie", "Crisps", "Chewing Gum", "Soda", "Water", "Lemonade", "Juice"  };//array for item names
             double[] itemPrice = new double[items] { 0.85, 1.30, 1.10, 0.95, 1.10, 0.70, 1.30, 1.00 }; //array for the prices of items
@@ -141,7 +141,12 @@ namespace FoodMachine
                                 //output response based on input
 
                                 //if response is valid
-                                if (itemChoice >= 0 && itemChoice <= items)
+                                if(itemChoice == items + 1)
+                                {
+                                    subMenu = 3;
+                                    break;
+                                }
+                                else if (itemChoice > 0 && itemChoice <= items + 1)
                                 {
                                     //add item to basket
                                     Console.WriteLine("{0} has been added to the list", itemName[itemChoice - 1]); //selects the item (list starts from position 0)
@@ -302,7 +307,7 @@ namespace FoodMachine
                                 Console.WriteLine($"Available balance: £{balance:F2}");
                                 Console.WriteLine();
                                 Console.WriteLine("Input an amount you would like to add");
-                                Console.WriteLine("A maximum amount of £10 can be added. Anything else will  be returned");
+                                Console.WriteLine("A maximum amount of £10 can be added. Anything else will be returned");
                                 checkString = Console.ReadLine();
                                 //parse the value and read it
                                 tempBal = balUsage(checkString);
@@ -311,7 +316,7 @@ namespace FoodMachine
                                 {
                                     Console.WriteLine("Do you wish to add £{0:F2} credits to your account? Y/N", tempBal);
                                     Console.WriteLine("Funds currently in account: £{0:F2}", balance);
-                                    Console.WriteLine("Amount after adding:£{0:F2}", balance + tempBal);
+                                    Console.WriteLine("Amount after adding: £{0:F2}", balance + tempBal);
                                     checkString = Console.ReadLine();
                                     answerCheck = characterCheck(answerCheck, checkString);
 
@@ -692,14 +697,14 @@ namespace FoodMachine
             Console.WriteLine("> Select items to buy <");
             Console.WriteLine(" ");
 
-            for (int i = 1; i < 6; i++) //loops the items in the string to show on the console
+            for (int i = 1; i < itemName.Length + 1; i++) //loops the items in the string to show on the console
             {
                 Console.WriteLine("[{0}] : {1}   Price:£{2:F2} ", i, itemName[i - 1], itemPrice[i - 1]);
             }
             Console.WriteLine(" ");
             if (itemBasket.Count >= 1)
             {
-                Console.WriteLine("[6] : Pay for items");
+                Console.WriteLine("[{0}] : Pay for items", itemName.Length + 1);
             }
             Console.WriteLine("[0] : Return to menu.");
             Console.WriteLine(" ");
