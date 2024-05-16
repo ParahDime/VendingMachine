@@ -11,7 +11,7 @@ namespace FoodMachine
 {
     class Program
     {
-        
+
 
         static void Main(string[] args)
         {
@@ -24,8 +24,9 @@ namespace FoodMachine
             int menuSelection = 0; //used for selecting the different menus
             int loginAttempts = 0; //used for gaining access to the program
             int subMenu = 0; //used to define the in sub menu
-            string checkString; //used for passing values
+            string checkString = ""; //used for passing values
 
+            int files = 2;
             int pin = 1234;
             int attemptPin = 0000;
             int accessLevel = 0;
@@ -39,10 +40,38 @@ namespace FoodMachine
 
             const int maxBasket = 5;
             const int items = 8;
-            string[] itemName = new string[items] { "Chocolate", "Cookie", "Crisps", "Chewing Gum", "Soda", "Water", "Lemonade", "Juice"  };//array for item names
+            string[] itemName = new string[items] { "Chocolate", "Cookie", "Crisps", "Chewing Gum", "Soda", "Water", "Lemonade", "Juice" };//array for item names
             double[] itemPrice = new double[items] { 0.85, 1.30, 1.10, 0.95, 1.10, 0.70, 1.30, 1.00 }; //array for the prices of items
-            
+
             List<string> itemBasket = new List<string>();
+
+            checkString = "data.txt";
+
+            
+            //check data can be read (userdata)
+            if (checkRead(checkString))
+            {
+                WriteItems(checkString);
+            }
+            else
+            {
+                Console.ReadKey();
+                return;
+            }
+
+            checkString = "TextFile1.txt";
+            //check data can be read (items)
+            if(checkRead(checkString))
+            {
+                WriteItems(checkString);
+            }
+            else
+            {
+                Console.ReadKey();
+                return;
+            }
+
+            Console.Clear();
 
             while (loginAttempts < 4) //Used to login to gain access to the system
             {
@@ -141,7 +170,7 @@ namespace FoodMachine
                                 //output response based on input
 
                                 //if response is valid
-                                if(itemChoice == items + 1)
+                                if (itemChoice == items + 1)
                                 {
                                     subMenu = 3;
                                     break;
@@ -365,24 +394,26 @@ namespace FoodMachine
                         while (menuSelection == 3) //Used for changing values of the system
                         {
                             Console.Clear();
-                            Console.WriteLine("[4] : Access System Values\n");
-                           
-                            if(accessLevel > 1) //if admin and above
+                            Console.WriteLine("[3] : Access System Values\n");
+
+                            if (accessLevel > 1) //if admin and above
                             {
                                 Console.WriteLine("Select mode");
                                 // add, edit, remove
                                 Console.WriteLine("[1] : Add items");
                                 Console.WriteLine("[2] : Edit items");
-                                Console.WriteLine("[3] : Remove items");
+                                Console.WriteLine("[3] : Remove items\n");
                                 Console.WriteLine("[0] : Exit");
 
-                                
+
+
                             }
                             else //if regular user
                             {
                                 Console.WriteLine("ERROR! \nYou do not have the correct permissions.");
                                 Console.WriteLine("\n\n Press any key to return to main menu.");
                                 Console.ReadKey();
+                                menuSelection = 5;
                                 break;
                             }
 
@@ -391,7 +422,7 @@ namespace FoodMachine
                         while (menuSelection == 4) //Used for changing the values/adding items
                         {
                             Console.Clear();
-                            Console.WriteLine("[5] : Access System Items\n");
+                            Console.WriteLine("[4] : Access System Items\n");
                             Console.WriteLine("[1] : Edit PIN");
                             Console.WriteLine("[2] : Add users\n");
                             Console.WriteLine("[0] : Exit");
@@ -447,10 +478,10 @@ namespace FoodMachine
                                     break;
                                 }
 
-                                
+
                                 //if not
                             } while (adminMenu == 2);
-                            
+
                             Console.ReadKey();
                             menuSelection = 5;
                         }
@@ -491,13 +522,13 @@ namespace FoodMachine
 
                     } while (programRun == true);
                 }
-                if(menuSelection == 0) //if the user chooses to exit the program
+                if (menuSelection == 0) //if the user chooses to exit the program
                 {
                     loginAttempts = 4;
                     return;
                 }
 
-                if(menuSelection != 1 && menuSelection != 2) //if neither option is correct, the user will be told
+                if (menuSelection != 1 && menuSelection != 2) //if neither option is correct, the user will be told
                 {
                     Console.WriteLine("The option you entered was not available. Please try again");
                     Console.WriteLine(" ");
@@ -506,10 +537,31 @@ namespace FoodMachine
             }
             while ((programRun == true))
             {
-                
+
             }
         }
 
+        //checks a file is readable
+        static bool checkRead(string name)
+        {
+            //if can be opened, debug text yes
+
+            //if not, error message
+
+            return true;
+        }
+
+        //read items from a file
+        static void ReadItems(string name)
+        {
+
+        }
+        
+        //writes items to a file
+        static void WriteItems(string name)
+        {
+
+        }
         static void systemAccess()
         {
             menuLogo();
@@ -632,27 +684,27 @@ namespace FoodMachine
             {
                 checkString.ToLower();
 
-                if(checkString == "zero")
+                if (checkString == "zero")
                 {
                     menuSelection = 0;
                 }
-                else if(checkString == "one")
+                else if (checkString == "one")
                 {
                     menuSelection = 1;
                 }
-                else if(checkString == "two")
+                else if (checkString == "two")
                 {
                     menuSelection = 2;
                 }
-                else if(checkString == "three")
+                else if (checkString == "three")
                 {
                     menuSelection = 3;
                 }
-                else if(checkString == "four")
+                else if (checkString == "four")
                 {
                     menuSelection = 4;
                 }
-                else if(checkString == "five")
+                else if (checkString == "five")
                 {
                     menuSelection = 5;
                 }
@@ -660,7 +712,7 @@ namespace FoodMachine
                 {
                     menuSelection = 6;
                 }
-                else if(checkString == "seven")
+                else if (checkString == "seven")
                 {
                     menuSelection = 7;
                 }
@@ -671,7 +723,7 @@ namespace FoodMachine
 
             }
 
-            if(menuSelection >= 0 || menuSelection <= 7)
+            if (menuSelection >= 0 || menuSelection <= 7)
             {
                 return menuSelection;
             }
@@ -719,6 +771,8 @@ namespace FoodMachine
             Console.WriteLine("Current total: {0:F2}", itemCredits); //prints the total cost of the items
             Console.WriteLine("Current balance:{0:F2}", creditBal); //shows the amount in the balance
         }
+
+
 
         //displays items in the basket
         static void itemsInBasket()
