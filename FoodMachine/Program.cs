@@ -47,19 +47,34 @@ namespace FoodMachine
 
             checkString = "data.txt";
 
+            //get the directory of the folder
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             
+            string projectDirectory = Directory.GetParent(Directory.GetParent(baseDirectory).FullName).FullName;
+            projectDirectory = Directory.GetParent(Directory.GetParent(projectDirectory).FullName).FullName;
+            //projectDirectory = Directory.GetParent(Directory.GetParent(projectDirectory).FullName).FullName;
+
+            string filePath = Path.Combine(projectDirectory, "FoodMachine", "data.txt");
+
+            string content = File.ReadAllText(filePath);
+            Console.WriteLine(content);
+
+
+            //Console.Write();
             //check data can be read (userdata)
-            if (checkRead(checkString))
+            /*if (checkRead(checkString))
             {
+
                 WriteItems(checkString);
             }
             else
             {
+                Console.Write("error");
                 Console.ReadKey();
                 return;
-            }
+            }*/
 
-            checkString = "TextFile1.txt";
+            /*checkString = "TextFile1.txt";
             //check data can be read (items)
             if(checkRead(checkString))
             {
@@ -69,7 +84,7 @@ namespace FoodMachine
             {
                 Console.ReadKey();
                 return;
-            }
+            }*/
 
             Console.Clear();
 
@@ -545,7 +560,16 @@ namespace FoodMachine
         static bool checkRead(string name)
         {
             //if can be opened, debug text yes
+            
 
+            if(File.Exists(name))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
             //if not, error message
 
             return true;
