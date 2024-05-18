@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+
+
 namespace FoodMachine
 {
     class Program
@@ -35,8 +37,9 @@ namespace FoodMachine
             double tempBal = 0.00;
             double basketTotal = 0.00;
 
-            List<string> userName = new List<string>();
-            List<string> passWord = new List<string>();
+            List<Account> users = new List<Account>();
+            string fileName;
+            string filePath = "";
 
             const int maxBasket = 5;
             const int items = 8;
@@ -45,46 +48,34 @@ namespace FoodMachine
 
             List<string> itemBasket = new List<string>();
 
-            checkString = "data.txt";
-
-            //get the directory of the folder
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            
-            string projectDirectory = Directory.GetParent(Directory.GetParent(baseDirectory).FullName).FullName;
-            projectDirectory = Directory.GetParent(Directory.GetParent(projectDirectory).FullName).FullName;
-            //projectDirectory = Directory.GetParent(Directory.GetParent(projectDirectory).FullName).FullName;
-
-            string filePath = Path.Combine(projectDirectory, "FoodMachine", "data.txt");
-
-            string content = File.ReadAllText(filePath);
-            Console.WriteLine(content);
-
-
-            //Console.Write();
+            fileName = "TextFile1.txt";
+            getFilePath(ref filePath, fileName);
             //check data can be read (userdata)
-            /*if (checkRead(checkString))
+            if (checkRead(filePath))
             {
-
-                WriteItems(checkString);
+                
+                WriteItems(filePath, ref users);
             }
             else
             {
-                Console.Write("error");
+                Console.Write("ERROR. Press any key to exit the program");
                 Console.ReadKey();
                 return;
-            }*/
+            }
 
-            /*checkString = "TextFile1.txt";
+            fileName = "data.txt";
+            getFilePath(ref filePath, fileName);
             //check data can be read (items)
-            if(checkRead(checkString))
+            if(checkRead(filePath))
             {
-                WriteItems(checkString);
+                //WriteItems(checkString);
             }
             else
             {
+                Console.Write("ERROR. Press any key to exit the program");
                 Console.ReadKey();
                 return;
-            }*/
+            }
 
             Console.Clear();
 
@@ -94,6 +85,7 @@ namespace FoodMachine
                 Console.WriteLine("[1] : Login");
                 Console.WriteLine("[0] : Exit");
                 checkString = Console.ReadLine();
+
                 menuSelection = numberCheck(menuSelection, checkString);
                 Console.Clear();
 
@@ -556,6 +548,18 @@ namespace FoodMachine
             }
         }
 
+        //get the file path of the item searched
+        static string getFilePath(ref string filePath, string fileName)
+        {
+            //get the directory of the folder
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            string projectDirectory = Directory.GetParent(Directory.GetParent(baseDirectory).FullName).FullName;
+            projectDirectory = Directory.GetParent(Directory.GetParent(projectDirectory).FullName).FullName;
+
+            return filePath = Path.Combine(projectDirectory, "FoodMachine", fileName);
+        }
+
         //checks a file is readable
         static bool checkRead(string name)
         {
@@ -582,9 +586,46 @@ namespace FoodMachine
         }
         
         //writes items to a file
-        static void WriteItems(string name)
+        static void WriteItems(string filePath, ref List<Account> users)
         {
+            try
+            {
+                // Read all lines from the file
+                string[] lines = File.ReadAllLines(filePath);
 
+                // Loop through each line
+                foreach (string line in lines)
+                {
+                    // Split the line by commas
+                    string[] parts = line.Split(' ');
+
+                    // Ensure there are exactly 4 parts
+                    if (parts.Length == 4)
+                    {
+                        // Parse the values
+                        string name = parts[0];
+                        
+                        string id = parts[1];
+                        int someInteger = int.Parse(parts[2]);
+                        float someFloat = float.Parse(parts[3]);
+
+                        // Create a new Person object
+                        Account person = new Account(name, id, someInteger, someFloat);
+
+                        // Add the person to the list
+                        users.Add(person);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Invalid line format: {line}");
+                        Console.ReadKey();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
         }
         static void systemAccess()
         {
