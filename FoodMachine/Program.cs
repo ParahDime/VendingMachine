@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Win32;
 
 
 
@@ -19,42 +20,38 @@ namespace FoodMachine
         {
 
             bool programRun = true; //as long as it is true, the logo will run
-            bool logoRun = true; //shows whether the logo will run
+            bool logRun = false; //if user is logged in, turns to true
 
             char answerCheck = ' '; //allows the user to check for an answer by changing the char to y or n
+            string checkString = ""; //used for passing values
 
             int menuSelection = 0; //used for selecting the different menus
             int loginAttempts = 0; //used for gaining access to the program
             int subMenu = 0; //used to define the in sub menu
-            string checkString = ""; //used for passing values
 
-            int files = 2;
-            int pin = 1234;
-            int attemptPin = 0000;
-            int accessLevel = 0;
+            int selectedUser = 0; //user selected from the list
+            double tempBal = 0.00; //temporary balance 
+            double basketTotal = 0.00; //total of items in basket
 
-            double balance = 0.00;
-            double tempBal = 0.00;
-            double basketTotal = 0.00;
+            List<Account> users = new List<Account>(); //list of users
+            List<VendingItem> items = new List<VendingItem>(); //list of purchasable items
 
-            List<Account> users = new List<Account>();
-            string fileName;
-            string filePath = "";
+            string fileName; //name of file
+            string filePath = ""; //path to file
 
             const int maxBasket = 5;
-            const int items = 8;
-            string[] itemName = new string[items] { "Chocolate", "Cookie", "Crisps", "Chewing Gum", "Soda", "Water", "Lemonade", "Juice" };//array for item names
-            double[] itemPrice = new double[items] { 0.85, 1.30, 1.10, 0.95, 1.10, 0.70, 1.30, 1.00 }; //array for the prices of items
 
+            //#########################################
+            //          Read Files
+            //#########################################
             List<string> itemBasket = new List<string>();
 
             fileName = "TextFile1.txt";
             getFilePath(ref filePath, fileName);
             //check data can be read (userdata)
             if (checkRead(filePath))
-            {
-                
-                WriteItems(filePath, ref users);
+            {        
+                ReadItems(filePath, ref users);
             }
             else
             {
@@ -68,7 +65,7 @@ namespace FoodMachine
             //check data can be read (items)
             if(checkRead(filePath))
             {
-                //WriteItems(checkString);
+                ReadData(filePath, ref items);
             }
             else
             {
@@ -76,8 +73,11 @@ namespace FoodMachine
                 Console.ReadKey();
                 return;
             }
-
             Console.Clear();
+
+            //#########################################
+            //          Login
+            //#########################################
 
             while (loginAttempts < 4) //Used to login to gain access to the system
             {
@@ -89,19 +89,30 @@ namespace FoodMachine
                 menuSelection = numberCheck(menuSelection, checkString);
                 Console.Clear();
 
-                while (menuSelection == 1) //if they select the login method
+                while (logRun == false) //if they select the login method
                 {
                     Console.WriteLine("[1] : Login");
                     Console.WriteLine(" ");
 
-                    while (attemptPin != pin)                                              //used to check the password once it has been entered
+                    while (logRun == false) //used to check the password once it has been entered
                     {
                         //if they fail to input the right password, they will be given X more chances
                         Console.WriteLine("Please enter your pin:");
                         checkString = Console.ReadLine();
-                        attemptPin = numberCheck(attemptPin, checkString);
 
-                        if (attemptPin != pin)
+                        //for loop to check if it matches any users
+                        for (int i = 0; i < users.Count(); i++)
+                        {
+                            Console.WriteLine(i);
+                            if (users[i].PIN == checkString)
+                            {
+                                logRun = true;
+                                selectedUser = i;
+                                break;
+                            }                            
+                        }
+
+                        if (logRun == false)
                         {
                             //if they fail to input a correct password, they will be given X more attempts (max 4)
                             Console.WriteLine("Incorrect PIN");
@@ -111,11 +122,16 @@ namespace FoodMachine
                             }
                             else //if 4 attempts fail, end the program
                             {
+                                Console.Write("Could not identify user. Press any key to terminate program");
+                                Console.ReadKey();
                                 return;
                             }
                         }
-
                     }
+
+                    //#########################################
+                    //          Authorised Login
+                    //#########################################
 
                     Console.Clear();
                     do
@@ -136,7 +152,7 @@ namespace FoodMachine
 
                         while (menuSelection == 1) //used for purchasing items available
                         {
-                            if (itemBasket.Count() >= items)
+                            if (itemBasket.Count() >= items.Count())
                             {
                                 Console.WriteLine("Current item basket is full. Press any key to continue");
                                 Console.ReadKey();
@@ -169,7 +185,7 @@ namespace FoodMachine
                                 }
                                 int itemChoice = 0;
                                 //Output the items in the basket
-                                itemsAvailable(itemName, itemPrice, itemBasket, balance, basketTotal);
+                                itemsAvailable(ref items, itemBasket, users[selectedUser].balance, basketTotal);
 
                                 //Read line
                                 checkString = Console.ReadLine();
@@ -177,21 +193,21 @@ namespace FoodMachine
                                 //output response based on input
 
                                 //if response is valid
-                                if (itemChoice == items + 1)
+                                if (itemChoice == items.Count() + 1)
                                 {
                                     subMenu = 3;
                                     break;
                                 }
-                                else if (itemChoice > 0 && itemChoice <= items + 1)
+                                else if (itemChoice > 0 && itemChoice <= items.Count() + 1)
                                 {
                                     //add item to basket
-                                    Console.WriteLine("{0} has been added to the list", itemName[itemChoice - 1]); //selects the item (list starts from position 0)
+                                    Console.WriteLine("{0} has been added to the list", items[itemChoice - 1].name); //selects the item (list starts from position 0)
                                     Console.WriteLine("Press enter to continue");
                                     Console.ReadLine();
 
-                                    basketTotal = basketTotal + itemPrice[itemChoice - 1]; //adds the price of the item onto the temporary total cost
-                                    checkString = itemName[itemChoice - 1]; //takes the item name and puts it into the checkstring
-                                    itemBasket.Add(itemName[itemChoice - 1]); //adds the checkstring value to the list
+                                    basketTotal = basketTotal + items[itemChoice - 1].price; //adds the price of the// item onto the temporary total cost
+                                    checkString = items[itemChoice - 1].name; //takes the item name and puts it into the checkstring
+                                    itemBasket.Add(items[itemChoice - 1].name); //adds the checkstring value to the list
                                 }
                                 //if response isn't valid
                                 else
@@ -234,10 +250,10 @@ namespace FoodMachine
                                     Console.WriteLine("Press any key to continue.");
                                     Console.ReadKey();
 
-                                    if (basketTotal > balance) //if total of basket is bigger than the balance
+                                    if (basketTotal > users[selectedUser].balance) //if total of basket is bigger than the balance
                                     {
                                         Console.WriteLine("You do not have enough credits to purchase these items.");
-                                        Console.WriteLine("Amount of credits over: {0:F2}", basketTotal - balance); //shows how many credits over they are
+                                        Console.WriteLine("Amount of credits over: {0:F2}", basketTotal - users[selectedUser].balance); //shows how many credits over they are
                                         Console.WriteLine("Would you like to add more credits to your account? Y/N");
                                         Console.WriteLine("This will take you to [2] : Add more credits"); //moves the user to [2], but keeps the items in their basket for when they select option 1
                                         checkString = Console.ReadLine();
@@ -263,7 +279,7 @@ namespace FoodMachine
                                         }
                                     }
 
-                                    else if (basketTotal <= balance) //if the cost of the items is less than or equal to the total credit balance
+                                    else if (basketTotal <= users[selectedUser].balance) //if the cost of the items is less than or equal to the total credit balance
                                     {
                                         Console.WriteLine("Would you like to purchase these items? Y/N");
                                         checkString = Console.ReadLine();
@@ -273,9 +289,9 @@ namespace FoodMachine
                                         {
                                             Console.WriteLine(String.Join(" Purchased.", itemBasket));
 
-                                            balance = balance - basketTotal;
+                                            users[selectedUser].balance = users[selectedUser].balance - basketTotal;
 
-                                            Console.WriteLine("You have {0:F2} credits remaining.", balance);
+                                            Console.WriteLine("You have {0:F2} credits remaining.", users[selectedUser].balance);
                                             Console.WriteLine("Press enter to return to the main menu");
                                             Console.ReadLine();
                                             itemBasket.Clear(); //fix clearing the list
@@ -328,7 +344,7 @@ namespace FoodMachine
                         }
                         while (menuSelection == 2) //Used for dealing with account funds
                         {
-                            Console.WriteLine($"Available balance:  £{balance:F2}");
+                            Console.WriteLine($"Available balance:  £{users[selectedUser].balance:F2}");
                             Console.WriteLine();
                             Console.WriteLine("[1] : Add funds");
                             Console.WriteLine("[0] : Exit");
@@ -340,7 +356,7 @@ namespace FoodMachine
                             {
                                 double inputValue = 0.00;
                                 //if they have chosen to add funds
-                                Console.WriteLine($"Available balance: £{balance:F2}");
+                                Console.WriteLine($"Available balance: £{users[selectedUser].balance:F2}");
                                 Console.WriteLine();
                                 Console.WriteLine("Input an amount you would like to add");
                                 Console.WriteLine("A maximum amount of £10 can be added. Anything else will be returned");
@@ -351,15 +367,15 @@ namespace FoodMachine
                                 if (tempBal > 0.00)
                                 {
                                     Console.WriteLine("Do you wish to add £{0:F2} credits to your account? Y/N", tempBal);
-                                    Console.WriteLine("Funds currently in account: £{0:F2}", balance);
-                                    Console.WriteLine("Amount after adding: £{0:F2}", balance + tempBal);
+                                    Console.WriteLine("Funds currently in account: £{0:F2}", users[selectedUser].balance);
+                                    Console.WriteLine("Amount after adding: £{0:F2}", users[selectedUser].balance + tempBal);
                                     checkString = Console.ReadLine();
                                     answerCheck = characterCheck(answerCheck, checkString);
 
                                     if (answerCheck == 'y')
                                     {
-                                        balance = balance + tempBal;
-                                        Console.WriteLine("Your credit balanced has been updated. New Total, £{0:F2}", balance);
+                                        users[selectedUser].balance = users[selectedUser].balance + tempBal;
+                                        Console.WriteLine("Your credit balanced has been updated. New Total, £{0:F2}", users[selectedUser].balance);
                                         Console.WriteLine("Press enter to return to the main menu");
                                         Console.ReadLine();
                                         Console.Clear();
@@ -368,7 +384,7 @@ namespace FoodMachine
                                     }
                                     else if (answerCheck == 'n')
                                     {
-                                        Console.WriteLine("Your funds were not updated. Total credits: £{0:F2}", balance);
+                                        Console.WriteLine("Your funds were not updated. Total credits: £{0:F2}", users[selectedUser].balance);
                                         Console.WriteLine("Press enter to return to the main menu");
                                         Console.ReadLine();
                                         Console.Clear();
@@ -403,7 +419,7 @@ namespace FoodMachine
                             Console.Clear();
                             Console.WriteLine("[3] : Access System Values\n");
 
-                            if (accessLevel > 1) //if admin and above
+                            if (users[selectedUser].accessLevel > 1) //if admin and above
                             {
                                 Console.WriteLine("Select mode");
                                 // add, edit, remove
@@ -462,7 +478,7 @@ namespace FoodMachine
                             do
                             {
                                 //if have validation
-                                if (accessLevel > 1)
+                                if (users[selectedUser].accessLevel > 1)
                                 {
                                     Console.WriteLine("This requires login. Please use a staff username and password");
                                     //give ability for user to add
@@ -579,14 +595,9 @@ namespace FoodMachine
             return true;
         }
 
-        //read items from a file
-        static void ReadItems(string name)
-        {
-
-        }
         
-        //writes items to a file
-        static void WriteItems(string filePath, ref List<Account> users)
+        //reads account into from a file
+        static void ReadItems(string filePath, ref List<Account> users)
         {
             try
             {
@@ -596,27 +607,27 @@ namespace FoodMachine
                 // Loop through each line
                 foreach (string line in lines)
                 {
-                    // Split the line by commas
+                    // Split the line by ws
                     string[] parts = line.Split(' ');
 
-                    // Ensure there are exactly 4 parts
+                    //Check there are 4 parts
                     if (parts.Length == 4)
                     {
-                        // Parse the values
-                        string name = parts[0];
-                        
+                        //Parse the values if needed
+                        string name = parts[0];                 
                         string id = parts[1];
                         int someInteger = int.Parse(parts[2]);
-                        float someFloat = float.Parse(parts[3]);
+                        double someFloat = double.Parse(parts[3]);
 
-                        // Create a new Person object
+                        //Create a new person object
                         Account person = new Account(name, id, someInteger, someFloat);
 
-                        // Add the person to the list
+                        // Add the person to the list of users
                         users.Add(person);
                     }
                     else
                     {
+                        //display an error message, wait for feedback to ensure read
                         Console.WriteLine($"Invalid line format: {line}");
                         Console.ReadKey();
                     }
@@ -625,6 +636,46 @@ namespace FoodMachine
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
+                Console.ReadKey();
+            }
+        }
+        //reads info to populate vending machine
+        static void ReadData(string filePath, ref List<VendingItem> items)
+        {
+            try
+            {
+                //Read all lines from the file
+                string[] lines = File.ReadAllLines(filePath);
+                
+
+                foreach (string line in lines)
+                {
+                    //split line by ws
+                    string[] parts = line.Split(' ');
+                    
+
+                    if (parts.Length == 2)
+                    {
+                        //ensure that there are 2 parts
+                        string name = parts[0];
+                        double price = double.Parse(parts[1]);
+
+                        VendingItem item = new VendingItem(name, price);
+                        items.Add(item);
+                    }
+                    else
+                    {
+                        //display an error message, wait for feedback to ensure read
+                        Console.WriteLine($"Invalid line format: {line}");
+                        Console.ReadKey();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //display an error message, wait for feedback to ensure read
+                Console.WriteLine($"An error  occurred: {ex.Message}");
+                Console.ReadKey();
             }
         }
         static void systemAccess()
@@ -809,19 +860,19 @@ namespace FoodMachine
         }
 
         //displays items available
-        static void itemsAvailable(string[] itemName, double[] itemPrice, List<string> itemBasket, double itemCredits, double creditBal) //shows the items available to buy
+        static void itemsAvailable(ref List<VendingItem> items, List<string> itemBasket, double itemCredits, double creditBal) //shows the items available to buy
         {
             Console.WriteLine("> Select items to buy <");
             Console.WriteLine(" ");
 
-            for (int i = 1; i < itemName.Length + 1; i++) //loops the items in the string to show on the console
+            for (int i = 1; i < items.Count() + 1; i++) //loops the items in the string to show on the console
             {
-                Console.WriteLine("[{0}] : {1}   Price:£{2:F2} ", i, itemName[i - 1], itemPrice[i - 1]);
+                Console.WriteLine("[{0}] : {1}   Price:£{2:F2} ", i, items[i - 1].name, items[i - 1].price);
             }
             Console.WriteLine(" ");
             if (itemBasket.Count >= 1)
             {
-                Console.WriteLine("[{0}] : Pay for items", itemName.Length + 1);
+                Console.WriteLine("[{0}] : Pay for items", items.Count() + 1);
             }
             Console.WriteLine("[0] : Return to menu.");
             Console.WriteLine(" ");
@@ -835,14 +886,6 @@ namespace FoodMachine
 
             Console.WriteLine("Current total: {0:F2}", itemCredits); //prints the total cost of the items
             Console.WriteLine("Current balance:{0:F2}", creditBal); //shows the amount in the balance
-        }
-
-
-
-        //displays items in the basket
-        static void itemsInBasket()
-        {
-
         }
 
     }
