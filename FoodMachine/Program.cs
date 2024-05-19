@@ -103,7 +103,6 @@ namespace FoodMachine
                         //for loop to check if it matches any users
                         for (int i = 0; i < users.Count(); i++)
                         {
-                            Console.WriteLine(i);
                             if (users[i].PIN == checkString)
                             {
                                 logRun = true;
@@ -117,7 +116,7 @@ namespace FoodMachine
                             //if they fail to input a correct password, they will be given X more attempts (max 4)
                             Console.WriteLine("Incorrect PIN");
                             loginAttempts++;
-                            if (loginAttempts < 4) {
+                            if (loginAttempts < 3) {
                                 Console.WriteLine("Please try again");
                             }
                             else //if 4 attempts fail, end the program
@@ -257,7 +256,7 @@ namespace FoodMachine
                                         Console.WriteLine("Would you like to add more credits to your account? Y/N");
                                         Console.WriteLine("This will take you to [2] : Add more credits"); //moves the user to [2], but keeps the items in their basket for when they select option 1
                                         checkString = Console.ReadLine();
-                                        answerCheck = characterCheck(answerCheck, checkString);
+                                        characterCheck(ref answerCheck, checkString);
 
                                         if (answerCheck == 'y') //if they agreed to put more credits into their account
                                         {
@@ -283,7 +282,7 @@ namespace FoodMachine
                                     {
                                         Console.WriteLine("Would you like to purchase these items? Y/N");
                                         checkString = Console.ReadLine();
-                                        answerCheck = characterCheck(answerCheck, checkString);
+                                        characterCheck(ref answerCheck, checkString);
 
                                         if (answerCheck == 'y') //if uses says y to purchasing the items
                                         {
@@ -353,8 +352,7 @@ namespace FoodMachine
                             subMenu = numberCheck(subMenu, checkString);
 
                             if (subMenu == 1)
-                            {
-                                double inputValue = 0.00;
+                            {                             
                                 //if they have chosen to add funds
                                 Console.WriteLine($"Available balance: £{users[selectedUser].balance:F2}");
                                 Console.WriteLine();
@@ -370,7 +368,7 @@ namespace FoodMachine
                                     Console.WriteLine("Funds currently in account: £{0:F2}", users[selectedUser].balance);
                                     Console.WriteLine("Amount after adding: £{0:F2}", users[selectedUser].balance + tempBal);
                                     checkString = Console.ReadLine();
-                                    answerCheck = characterCheck(answerCheck, checkString);
+                                    characterCheck(ref answerCheck, checkString);
 
                                     if (answerCheck == 'y')
                                     {
@@ -404,8 +402,6 @@ namespace FoodMachine
                                     Console.ReadKey();
                                 }
                                 //if amount is under 0
-
-
                                 Console.ReadLine();
                             }
                             else
@@ -428,7 +424,59 @@ namespace FoodMachine
                                 Console.WriteLine("[3] : Remove items\n");
                                 Console.WriteLine("[0] : Exit");
 
+                                checkString = Console.ReadLine();
+                                subMenu = numberCheck(subMenu, checkString);
 
+                                while(subMenu == 1) //add items
+                                {
+                                    //input variables
+                                    Console.WriteLine("Input item name");
+
+                                    Console.WriteLine("Input price for item");
+
+                                    //output the combined vars
+
+                                    //ask for verif
+
+                                    //if yes, add item to file
+
+                                    //else ignore, back to submenu
+                                    break;
+
+                                }
+                                while(subMenu == 2) //edit items
+                                {
+                                    //select item to modify (by name)
+                                    Console.WriteLine("Select item to modify");
+                                    //option to edit name or price
+                                    ItemPicker("modify", items, ref checkString);
+                                    //edit
+
+                                    //ask for confirmation
+
+                                    //if yes, edit file
+
+                                    //if no ignore
+                                    break;
+                                }
+                                while(subMenu == 3) //remove items
+                                {
+                                    //list items by name
+
+                                    ItemPicker("remove", items, ref checkString);
+
+                                    //check if item is within the items listed
+
+                                    //if yes, ask for pin confirmation
+
+                                    //if no, make aware, loop
+                                    break;
+                                }
+                                if (subMenu == 0)
+                                {
+                                    menuSelection = 5;
+                                    break;
+                                }
 
                             }
                             else //if regular user
@@ -439,54 +487,159 @@ namespace FoodMachine
                                 menuSelection = 5;
                                 break;
                             }
-
-                            menuSelection = 5;
                         }
-                        while (menuSelection == 4) //Used for changing the values/adding items
+                        while (menuSelection == 4) //Used for changing user info
                         {
                             Console.Clear();
-                            Console.WriteLine("[4] : Access System Items\n");
+                            Console.WriteLine("[4] : Access User Data\n");
                             Console.WriteLine("[1] : Edit PIN");
                             Console.WriteLine("[2] : Add users\n");
                             Console.WriteLine("[0] : Exit");
 
-                            int adminMenu = 0;
+                            //verif
+                            checkString = Console.ReadLine();
+                            subMenu = numberCheck(subMenu, checkString);
+
                             //exit
-                            do
+                            while (subMenu == 0)
                             {
+                                menuSelection = 5;
                                 break;
-                            } while (adminMenu == 0);
+                            }
 
-                            do //edit PIN
+                            while (subMenu == 1) //edit PIN
                             {
-                                //output PIN
+                                Console.Clear();
 
-                                //ask if user wants to change
+                                if (pinVerif(ref loginAttempts, users, selectedUser, checkString, ref subMenu))
+                                {
+                                    Console.WriteLine("PIN has been verified\n");
+                                    //ask if user wants to change
+                                    Console.WriteLine("Would you like to change your PIN? y/n");
 
-                                //if yes, user inputs 4 digit PIN
-                                //check if PIN in use
+                                    checkString = Console.ReadLine();
+                                    characterCheck(ref answerCheck, checkString);
 
-                                //if yes, loop, error
-                                //if no, ask verif
-                                //if verif, accept, break
-                                //if no, do not accept, break
+                                    if (answerCheck == 'y')
+                                    {
+                                        bool unique = true;
+                                        bool pinChange = false;
+                                        Console.Clear();
+                                        while (pinChange == false)
+                                        {
+                                            Console.WriteLine("Please enter your new PIN. Your PIN must be unique");
+                                            Console.WriteLine("Press 0 to return to the menu");
 
-                                //if no, break
-                                break;
-                            } while (adminMenu == 1);
-                            //submenu 2
-                            do
+                                            //if yes, user inputs a PIN
+                                            checkString = Console.ReadLine();
+                                            //check if PIN in use
+                                            for (int i = 0; i < users.Count(); i++)
+                                            {
+                                                if (users[i].PIN == checkString)
+                                                {
+                                                    unique = false;
+                                                    break;
+                                                }
+
+                                            }
+                                            //if yes, loop, error
+                                            if (unique && pinChange == true)
+                                            {
+                                                //open file
+                                                //edit file
+                                                //at location with name
+                                                //close file
+
+
+                                                Console.WriteLine("SUCCESS! Pin has been changed.");
+                                                Console.WriteLine("Press any key to continue");
+                                                Console.ReadKey();
+                                                subMenu = 0;
+                                                pinChange = true;
+                                                break;
+                                            }
+                                            else if (!unique && pinChange == false)
+                                            {
+                                                Console.Clear();
+                                                Console.WriteLine("Your PIN could not be changed to {0} due to security concerns. Please try again");
+                                            }
+
+                                            if (checkString == "0")
+                                            {
+                                                subMenu = 0;
+                                                pinChange = false;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else if (answerCheck == 'n')
+                                    {
+                                        //if verif, accept, break
+                                        Console.WriteLine("PIN has not been changed");
+                                        Console.WriteLine("Press any key to continue");
+                                        Console.ReadKey();
+                                        subMenu = 0;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Invalid Response\nPress any key to continue");
+                                        Console.ReadKey();
+                                        subMenu = 0;
+                                        break;
+                                    }
+                                    break;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+
+                            while (subMenu == 2) //adding users
                             {
                                 //if have validation
                                 if (users[selectedUser].accessLevel > 1)
                                 {
                                     Console.WriteLine("This requires login. Please use a staff username and password");
-                                    //give ability for user to add
-                                    //provide name
-                                    //access Level must be 1 less than them
-                                    //balance is auto 0.00
 
-                                    //provide output, check to confirm
+                                    while (pinVerif(ref loginAttempts, users, selectedUser, checkString, ref subMenu))
+                                    {
+                                        Console.WriteLine("PIN has been verified\n");
+
+                                        //ask user if they want to use a file
+                                        Console.WriteLine("Would you like to import the data from a file? y/n");
+
+                                        if (characterCheck(ref answerCheck, checkString) == 'y')
+                                        {
+                                            //ask user which file
+
+                                            //provide input for the file name
+
+                                            //check the file is valid
+
+                                            //if yes, read the data into the program, then update both list and og data file
+
+                                            //if not valid, let user know
+                                        }
+                                        else
+                                        {
+                                            //prompt user for information line by line
+
+                                            //name
+
+                                            //default pin
+
+                                            //security level is always 1
+                                            //bal is always empty
+
+                                            //ask if params are correct
+                                            //if yes, add as above
+
+                                            //if not, loop
+                                        }
+                                    }
+
 
                                     //if yes push and update data
                                     //if no clear vars, press any key to return
@@ -500,14 +653,9 @@ namespace FoodMachine
                                     Console.ReadKey();
                                     break;
                                 }
-
-
-                                //if not
-                            } while (adminMenu == 2);
-
-                            Console.ReadKey();
-                            menuSelection = 5;
+                            } 
                         }
+
                         while (menuSelection == 0) //used for exiting the program
                         {
                             checkString = " ";
@@ -518,7 +666,7 @@ namespace FoodMachine
                                 //will continuously run until either the menuselection is changed or the character is y or n
                                 Console.WriteLine(" Do you want to exit the program? Y/N");
                                 checkString = Console.ReadLine();
-                                answerCheck = characterCheck(answerCheck, checkString);
+                                 characterCheck(ref answerCheck, checkString);
 
                                 if (answerCheck == 'y') //if they typed y, it will close the program
                                 {
@@ -590,9 +738,6 @@ namespace FoodMachine
             {
                 return false;
             }
-            //if not, error message
-
-            return true;
         }
 
         
@@ -767,7 +912,7 @@ namespace FoodMachine
             }
         }
 
-        static char characterCheck(char answerCheck, string checkString)//parses a string 
+        static char characterCheck(ref char answerCheck, string checkString)//parses a string 
         {
             checkString = checkString.ToLower(); //converts the value to lower case
 
@@ -888,5 +1033,47 @@ namespace FoodMachine
             Console.WriteLine("Current balance:{0:F2}", creditBal); //shows the amount in the balance
         }
 
+        //checks the users pin verification
+        static bool pinVerif(ref int loginAttempts, List<Account> users, int selectedUser, string checkString, ref int subMenu)
+        {
+            loginAttempts = 0;
+            //user inputs their pin
+            while (loginAttempts < 3 && users[selectedUser].PIN != checkString) //loop, verify
+            {
+                Console.WriteLine("For security reasons, please enter your PIN to verify:");
+                checkString = Console.ReadLine();
+                if (users[selectedUser].PIN == checkString) //if correct
+                {
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("Input was not correct. Please try again");
+                    loginAttempts++;
+                }
+
+                if (loginAttempts == 3)
+                {
+                    Console.WriteLine("User could not verify their PIN. Press any key to continue");
+                    Console.ReadKey();
+                    subMenu = 0;
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        //selects which item to pick from the list (selection 3)
+        static void ItemPicker(string verb, List <VendingItem> items, ref string checkString)
+        {
+            for(int i = 0; i < items.Count(); i++)
+            {
+                Console.WriteLine("{0}: {1}", i, items[i].name);
+            }
+            Console.WriteLine("Select item to {0}", verb);
+            checkString = Console.ReadLine();
+
+
+        }
     }
 }
