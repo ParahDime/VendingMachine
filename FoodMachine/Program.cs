@@ -412,8 +412,13 @@ namespace FoodMachine
                         }
                         while (menuSelection == 3) //Used for changing values of the system
                         {
+
                             Console.Clear();
                             Console.WriteLine("[3] : Access System Values\n");
+
+                            //update filepath
+                            fileName = "data.txt";
+                            getFilePath(ref filePath, fileName);
 
                             if (users[selectedUser].accessLevel > 1) //if admin and above
                             {
@@ -437,19 +442,50 @@ namespace FoodMachine
                                 int numUsed = -1;
                                 while(subMenu == 1) //add items
                                 {
-                                    
+                                    string newName;
+                                    double newPrice;
                                     //input variables
                                     Console.WriteLine("Input item name");
-
+                                    newName = Console.ReadLine();
+                                    
                                     Console.WriteLine("Input price for item");
-
+                                    checkString = Console.ReadLine();
+                                    try
+                                    {
+                                        double.TryParse(checkString, out newPrice);
+                                        //round the number to 2 decimal places
+                                        newPrice = Math.Round(newPrice, 2);
+                                    }
+                                    catch
+                                    {
+                                        Console.WriteLine("ERROR\nThe value inputted was not formatted properly. Press any key to continue");
+                                        Console.ReadKey();
+                                        Console.Clear();
+                                        subMenu = -1;
+                                        break;
+                                    }
                                     //output the combined vars
-
+                                    Console.WriteLine("{0}: {1}, {2}", items[items.Count() + 1], newName, newPrice);
+                                    Console.WriteLine("Is this correct? y/n");
                                     //ask for verif
+                                    checkString = Console.ReadLine();                             
 
-                                    //if yes, add item to file
+                                    if(answerCheck == 'y')//if yes, add item to file
+                                    {
+                                        VendingItem newItem = new VendingItem(newName, newPrice);//input into object of type vending item
 
-                                    //else ignore, back to submenu
+                                        items.Add(newItem);//push to list
+
+                                        ModifyFile(ref items, ref filePath);//amend file to add
+
+                                        Console.WriteLine("SUCCESS! Item has been successfully added");
+                                    }
+                                    else //else ignore, back to submenu
+                                    {
+                                        Console.Clear();
+                                        subMenu = -1;
+                                        break;
+                                    }
                                     break;
 
                                 }
@@ -476,6 +512,10 @@ namespace FoodMachine
                         }
                         while (menuSelection == 4) //Used for changing user info
                         {
+                            //update filepath
+                            fileName = "TextFile1.txt";
+                            getFilePath(ref filePath, fileName);
+
                             Console.Clear();
                             Console.WriteLine("[4] : Access User Data\n");
                             Console.WriteLine("[1] : Edit PIN");
@@ -526,16 +566,14 @@ namespace FoodMachine
                                                     unique = false;
                                                     break;
                                                 }
-
                                             }
-                                            //if yes, loop, error
+
                                             if (unique && pinChange == true)
                                             {
-                                                //open file
-                                                //edit file
-                                                //at location with name
-                                                //close file
+                                                users[selectedUser].PIN = checkString;
+                                                
 
+                                                ModifyUsers(ref users, ref filePath);//open & edit file
 
                                                 Console.WriteLine("SUCCESS! Pin has been changed.");
                                                 Console.WriteLine("Press any key to continue");
@@ -547,7 +585,7 @@ namespace FoodMachine
                                             else if (!unique && pinChange == false)
                                             {
                                                 Console.Clear();
-                                                Console.WriteLine("Your PIN could not be changed to {0} due to security concerns. Please try again");
+                                                Console.WriteLine("Your PIN could not be changed to {0} due to security concerns. Please try again", checkString);
                                             }
 
                                             if (checkString == "0")
@@ -591,45 +629,53 @@ namespace FoodMachine
 
                                     while (pinVerif(ref loginAttempts, users, selectedUser, checkString, ref subMenu))
                                     {
+                                        string newName;
+                                        string newPIN;
                                         Console.WriteLine("PIN has been verified\n");
 
-                                        //ask user if they want to use a file
-                                        Console.WriteLine("Would you like to import the data from a file? y/n");
+                                        Console.WriteLine("Inputting a new user only requires a username");
+                                        Console.WriteLine("Input the new user's name");
+                                        newName = Console.ReadLine();
 
-                                        if (characterCheck(ref answerCheck, checkString) == 'y')
+                                        Random rnd = new Random();
+                                        bool unique = true;
+
+                                        do
                                         {
-                                            //ask user which file
+                                            //randomise PIN for the user
+                                            newPIN = rnd.Next(1, 10000).ToString();
 
-                                            //provide input for the file name
+                                            for (int i = 0; i < users.Count(); i++) //check if PIN is in use
+                                            {
+                                                if (users[i].PIN == newPIN) //compare against all PINs in use
+                                                {
+                                                    unique = false;
+                                                }
+                                            }
 
-                                            //check the file is valid
+                                        } while (!unique); //do (once) while pin is not unique (if unique, move out of loop)
 
-                                            //if yes, read the data into the program, then update both list and og data file
+                                        Account newUser = new Account(newName, newPIN, 1, 0.00);
 
-                                            //if not valid, let user know
-                                        }
-                                        else
-                                        {
-                                            //prompt user for information line by line
+                                        Console.WriteLine("UserName: {0}",newUser.username);
+                                        Console.WriteLine("PIN: {0}", newUser.PIN);
+                                        Console.WriteLine("Access Level: {0}", newUser.accessLevel);
+                                        Console.WriteLine("Balance: {0}", newUser.balance);
 
-                                            //name
+                                        users.Add(newUser);//add to the list
 
-                                            //default pin
+                                        ModifyUsers(ref users, ref filePath);//add to the main file
 
-                                            //security level is always 1
-                                            //bal is always empty
-
-                                            //ask if params are correct
-                                            //if yes, add as above
-
-                                            //if not, loop
-                                        }
+                                        CreateFile(ref newUser);//send to a unique file
                                     }
 
-
-                                    //if yes push and update data
-                                    //if no clear vars, press any key to return
-
+                                    if (loginAttempts == 3)
+                                    {
+                                        Console.WriteLine("User could not be validated. Press any key to continue.");
+                                        menuSelection = 5;
+                                        Console.Clear();
+                                        break;
+                                    }
                                     break;
                                 }
                                 else
@@ -1098,7 +1144,10 @@ namespace FoodMachine
                                 {
                                     items[numUsed].name = newName;//update the list
 
-                                    //update the file
+                                    ModifyFile(ref items, ref filePath);//update the file//update the file
+                                    Console.WriteLine("SUCCESS! Entry has been successfully modified. Press any key to continue");
+                                    Console.ReadKey();
+                                    return;
                                 }
                                 else if (ans == 'n')//no
                                 {
@@ -1129,7 +1178,7 @@ namespace FoodMachine
                                 }
                                 catch (Exception ex) //catch exception
                                 {
-                                    Console.WriteLine("invalid entry. Press any key to exit");
+                                    Console.WriteLine("invalid entry. Press any key to exit, {0}", ex);
                                     Console.ReadKey();
                                     Console.Clear();
                                     return;
@@ -1148,7 +1197,10 @@ namespace FoodMachine
                                 {
                                     items[numUsed].price = newPrice;//update list
 
-                                    //update the file
+                                    ModifyFile(ref items, ref filePath);//update the file
+                                    Console.WriteLine("SUCCESS! Entry has been successfully modified. Press any key to continue");
+                                    Console.ReadKey();
+                                    return;
                                 }
                                 else if (ans == 'n')//no
                                 {
@@ -1232,6 +1284,77 @@ namespace FoodMachine
                     file.WriteLine($"{item.name} {item.price}");
                 }
             }          
+        }
+
+        //modify the item file by updating the list of items available
+        static void ModifyUsers(ref List<Account> users, ref string filePath)
+        {
+            //open file
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(filePath, false)) //file is not validated before as it has already been checked to popular the items class
+            {
+                foreach (Account user in users)
+                {
+                    //write to file
+                    file.WriteLine($"{user.username} {user.PIN} {user.accessLevel} {user.balance}");
+                }
+            }
+        }
+
+        //create a file for new user details
+        static void CreateFile(ref Account newUser)
+        {
+            //get location of folder
+            int fileNumber = 1;
+            string fileName;
+            string folderName = "Userdata-copy";
+
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            string projectDirectory = Directory.GetParent(Directory.GetParent(baseDirectory).FullName).FullName;
+            projectDirectory = Directory.GetParent(Directory.GetParent(projectDirectory).FullName).FullName;
+
+            string folderPath = Path.Combine(projectDirectory, "FoodMachine", folderName);
+            //create a new folder
+            try
+            {
+                if (!Directory.Exists(folderPath))
+                {
+                    //access new folder
+                    Directory.CreateDirectory(folderPath);
+                    
+                }
+                else
+                {
+                }
+
+                //Path to the new text file
+                fileName = getUniqueFile(ref folderPath, ref fileNumber);
+                string filePath = Path.Combine(folderPath, fileName);
+
+                //put into a concat string
+                string formattedString = $"{newUser.username} {newUser.PIN} {newUser.accessLevel} {newUser.balance}";
+
+                //Write the information to a file
+                File.WriteAllText(filePath, formattedString);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"An error occurred: {e.Message}");
+            }
+        }
+
+        //get the next unique number in the file
+        static string getUniqueFile(ref string folderPath, ref int fileNumber)
+        {
+            string fileNamePattern = "userdata-{0}.txt";
+
+            while (File.Exists(Path.Combine(folderPath, string.Format(fileNamePattern, fileNumber)))) //checks if a file exists in the format
+            {
+                fileNumber++;
+            }
+
+            fileNamePattern = String.Concat("userdata-", fileNumber, ".txt");
+            return fileNamePattern;
         }
     }
 }
