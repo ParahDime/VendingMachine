@@ -427,8 +427,17 @@ namespace FoodMachine
                                 checkString = Console.ReadLine();
                                 subMenu = numberCheck(subMenu, checkString);
 
+
+                                if (subMenu == 0)
+                                {
+                                    menuSelection = 5;
+                                    break;
+                                }
+
+                                int numUsed = -1;
                                 while(subMenu == 1) //add items
                                 {
+                                    
                                     //input variables
                                     Console.WriteLine("Input item name");
 
@@ -446,38 +455,15 @@ namespace FoodMachine
                                 }
                                 while(subMenu == 2) //edit items
                                 {
-                                    //select item to modify (by name)
-                                    Console.WriteLine("Select item to modify");
-                                    //option to edit name or price
-                                    ItemPicker("modify", items, ref checkString);
-                                    //edit
-
-                                    //ask for confirmation
-
-                                    //if yes, edit file
-
-                                    //if no ignore
+                                    ItemPicker("modify", ref items, ref checkString, ref numUsed, ref filePath);                            
                                     break;
                                 }
                                 while(subMenu == 3) //remove items
                                 {
                                     //list items by name
 
-                                    ItemPicker("remove", items, ref checkString);
-
-                                    //check if item is within the items listed
-
-                                    //if yes, ask for pin confirmation
-
-                                    //if no, make aware, loop
-                                    break;
+                                    ItemPicker("remove", ref items, ref checkString, ref numUsed, ref filePath);
                                 }
-                                if (subMenu == 0)
-                                {
-                                    menuSelection = 5;
-                                    break;
-                                }
-
                             }
                             else //if regular user
                             {
@@ -1064,16 +1050,188 @@ namespace FoodMachine
         }
 
         //selects which item to pick from the list (selection 3)
-        static void ItemPicker(string verb, List <VendingItem> items, ref string checkString)
+        static void ItemPicker(string verb, ref List <VendingItem> items, ref string checkString, ref int numUsed, ref string filePath)
         {
-            for(int i = 0; i < items.Count(); i++)
+            char ans = ' ';
+            for(int i = 0; i < items.Count(); i++) //output list of items
             {
                 Console.WriteLine("{0}: {1}", i, items[i].name);
             }
             Console.WriteLine("Select item to {0}", verb);
-            checkString = Console.ReadLine();
+            checkString = Console.ReadLine(); //check if item is within the items listed
 
+            if (int.TryParse(checkString, out numUsed)) //attempt to parse the value of checkstring into a number
+            {
+                if(numUsed >= 0 && numUsed < items.Count()) //if a valid value
+                {
+                    //if yes, ask for pin confirmation
+                    Console.WriteLine("Item selected: {0}: {1}", items[numUsed].name, items[numUsed].price);
+                    Console.WriteLine("\nIs this correct? y/n");
+                    checkString = Console.ReadLine();
+                    characterCheck(ref ans, checkString);
+                    if(ans == 'y')
+                    {
+                        if(verb == "modify") //modify the item
+                        {
+                            int itemEdit = 0;
+                            Console.Clear();
+                            Console.WriteLine("Select item to modify:"); //option to modify name or price
+                            Console.WriteLine("[1]: name");
+                            Console.WriteLine("[1]: price");
+                            Console.WriteLine("[0]: exit");
+                            checkString = Console.ReadLine();
+                            itemEdit = numberCheck(itemEdit, checkString);
 
+                            if(itemEdit == 1) //edit name
+                            {
+                                Console.WriteLine("Enter the new name for {0}", items[numUsed].name);
+                                string newName = Console.ReadLine();
+                                
+                                Console.WriteLine("{0}: old name: {1}", numUsed, items[numUsed].name);
+                                Console.WriteLine("{0}: new name: {1}", numUsed, newName);
+                                //validate
+                                Console.WriteLine("\nIs this correct? y/n");
+                                checkString = Console.ReadLine();
+                                characterCheck(ref ans, checkString);
+
+                                if(ans == 'y')//yes
+                                {
+                                    items[numUsed].name = newName;//update the list
+
+                                    //update the file
+                                }
+                                else if (ans == 'n')//no
+                                {
+                                    Console.WriteLine("Values were not changed. Press any key to exit");
+                                    Console.ReadKey();
+                                    Console.Clear();
+                                    numUsed = -1;
+                                    return;
+                                }
+                                else//invalid
+                                {
+                                    Console.WriteLine("Invalid input. Press any key to exit");
+                                    Console.ReadKey();
+                                    Console.Clear();
+                                    numUsed = -1;
+                                    return;
+                                }
+                            }
+                            else if(itemEdit == 2) //edit price
+                            {
+                                Console.WriteLine("Enter the new price for {0}", items[numUsed].name);
+                                checkString = Console.ReadLine();
+                                double newPrice;
+
+                                try //parse the value
+                                {
+                                    double.TryParse(checkString, out newPrice);
+                                }
+                                catch (Exception ex) //catch exception
+                                {
+                                    Console.WriteLine("invalid entry. Press any key to exit");
+                                    Console.ReadKey();
+                                    Console.Clear();
+                                    return;
+                                }
+
+                                Console.WriteLine("{0}: {1}", numUsed, items[numUsed].name);
+                                Console.WriteLine("Old price: {0}", items[numUsed].price);
+                                Console.WriteLine("New price: {0}", checkString);
+                                //validate
+                                Console.WriteLine("\nIs this correct? y/n");
+                                checkString = Console.ReadLine();
+
+                                characterCheck(ref ans, checkString);
+
+                                if (ans == 'y')//yes
+                                {
+                                    items[numUsed].price = newPrice;//update list
+
+                                    //update the file
+                                }
+                                else if (ans == 'n')//no
+                                {
+                                    Console.WriteLine("Values were not changed. Press any key to exit");
+                                    Console.ReadKey();
+                                    Console.Clear();
+                                    numUsed = -1;
+                                    return;
+                                }
+                                else//invalid
+                                {
+                                    Console.WriteLine("Invalid input. Press any key to exit");
+                                    Console.ReadKey();
+                                    Console.Clear();
+                                    numUsed = -1;
+                                    return;
+                                }
+                            }
+                            else if(itemEdit == 0) //exit
+                            {
+                                Console.Clear();
+                                numUsed = -1;
+                                return;
+                            }
+                            else //invalid input
+                            {
+                                Console.WriteLine("Invalid input. Press any key to return");
+                                Console.ReadKey();
+                                Console.Clear();
+                                numUsed = -1;
+                                return;
+                            }                          
+                        }
+                        else if(verb == "remove") //remove the item
+                        {
+                            //select and remove item in list
+                            items.RemoveAt(numUsed);
+                            ModifyFile(ref items, ref filePath); //update file
+                        }
+                    }
+                    else if (ans == 'n')
+                    {
+                        Console.WriteLine("Item was not modified. Press any key to return");
+                        Console.ReadKey();
+                        numUsed = -1;
+                        return;
+                    }
+                    else //if input was not a valid item
+                    {
+                        Console.WriteLine("Invalid input. Press any key to return");
+                        Console.ReadKey();
+                        numUsed = -1;
+                    }                
+                }
+                else //if number out of range
+                {
+                    Console.WriteLine("The number provided was not a valid input. Press any key to return");
+                    Console.WriteLine();
+                    numUsed = -1;
+                }
+            }
+            else //if not a valid input
+            {
+                Console.Clear();
+                Console.WriteLine("Invalid input. Press any key to return");
+                Console.ReadKey();
+                numUsed = -1;
+            }
+            return;
+        }
+
+        //modify the item file by updating the list of items available
+        static void ModifyFile(ref List<VendingItem> items, ref string filePath)
+        {
+            //open file
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(filePath, false)) //file is not validated before as it has already been checked to popular the items class
+            {
+                foreach (VendingItem item in items)
+                {
+                    //write to file
+                    file.WriteLine($"{item.name} {item.price}");
+                }
+            }          
         }
     }
 }
