@@ -3,6 +3,7 @@ The program is designed to show usage of persistent data with text files, nestin
 
 Upon loading the program, the user will be prompted for a PIN. The default PIN is 1234, with an account balance of 0000.
 Upon successful login, 4 menus are displayed, as well as an exit option, that utilises an authorisation loop.
+
 1 - Purchase items
   The user can purchase items contained within the machine.
   Items are displayed in line with actual currency, including to 2 decimal places.
